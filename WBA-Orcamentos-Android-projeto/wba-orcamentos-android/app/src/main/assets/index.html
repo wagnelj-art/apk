@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>WBA Orçamentos</title>
+<style>
+:root{--bg:#EEF2F8;--card:#fff;--ink:#15181E;--mut:#5B6575;--line:#D5DCE8;--navy:#0A2A66;--blue:#1D6FF2;--bd:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0D1015;--card:#171B23;--ink:#E8ECF3;--mut:#9AA5B8;--line:#2A303C;--blue:#4C8DFF;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0D1015;--card:#171B23;--ink:#E8ECF3;--mut:#9AA5B8;--line:#2A303C;--blue:#4C8DFF;color-scheme:dark}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 Sora,system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
+header{background:#0A2A66;color:#fff;padding:14px 18px;display:flex;align-items:baseline;gap:10px;border-bottom:4px solid #1D6FF2}
+.logo{font-weight:800;font-size:28px;letter-spacing:1px}.sub{font-weight:600;opacity:.9}.st{margin-left:auto;font-size:11px;opacity:.75;text-align:right}
+main{max-width:640px;margin:0 auto;padding:16px 16px 96px}
+nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+nav button{flex:1;border:0;background:none;color:var(--mut);padding:15px 4px;font:600 14px Sora,system-ui,sans-serif}
+nav button.on{color:var(--blue);box-shadow:inset 0 3px 0 var(--blue)}
+h2{font-size:20px;margin:6px 0 12px}h3{font-size:16px;margin:18px 0 8px}
+input,select,textarea{width:100%;padding:14px;border:1.5px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);font:inherit;margin:0 0 10px}
+input:focus,select:focus{outline:3px solid var(--blue);outline-offset:1px}
+input[type=checkbox]{width:22px;height:22px;margin:0}
+.big{font-size:18px;padding:17px}
+button.b{border:0;border-radius:10px;padding:14px 16px;font:600 15px Sora,system-ui,sans-serif;background:var(--blue);color:#fff;cursor:pointer;min-height:48px}
+button.b.g{background:transparent;color:var(--blue);border:1.5px solid var(--blue)}button.b.r{background:#C62828}button.b:disabled{opacity:.5}
+.row{display:flex;gap:10px;flex-wrap:wrap}.row>*{flex:1 1 140px}
+.item{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:15px;margin:0 0 8px;color:var(--ink);font:inherit;cursor:pointer}
+.item small{color:var(--mut);display:block}.item .p{margin-left:auto;font-weight:800;font-size:19px;color:var(--blue);white-space:nowrap}
+.off{opacity:.55}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px}
+.price{font-size:56px;font-weight:800;color:var(--blue);line-height:1.1;margin:10px 0 4px;font-variant-numeric:tabular-nums}
+.mut{color:var(--mut);font-size:14px}.pill{display:inline-block;background:var(--blue);color:#fff;border-radius:99px;padding:4px 12px;font-size:13px;font-weight:600}
+.note{background:var(--card);border-left:4px solid var(--blue);padding:10px 14px;border-radius:6px;margin:0 0 14px;font-size:14px;color:var(--mut)}
+.tabs{display:flex;gap:6px;margin-bottom:14px;overflow-x:auto}.tabs button{flex:0 0 auto}
+.lbl{font-size:13px;color:var(--mut);margin:0 0 4px;display:block}
+#toast{position:fixed;left:50%;bottom:calc(76px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:#15181E;color:#fff;padding:12px 18px;border-radius:10px;font-size:14px;z-index:9;max-width:90%}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:20px;z-index:8}.ov>div{background:var(--card);border-radius:16px;padding:20px;max-width:420px;width:100%;max-height:90vh;overflow:auto}.ov img{width:100%;border-radius:8px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const K='wba_orcamentos_v1',F='Sora,system-ui,sans-serif',NF=new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'});
+const uid=()=>Math.random().toString(36).slice(2,9),now=()=>Date.now();
+const norm=s=>(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s+/g,'');
+const fdate=t=>new Date(t).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'});
+const DATA=[["Samsung","A11","Padrão",150],["Redmi","9A","Padrão",200],["Samsung","A10","Padrão",187.5],["Redmi","Note 12 4G","Padrão",400],["Motorola","Moto G22","Padrão",200],["Motorola","Moto G30","Padrão",150],["Samsung","A10S","Padrão",187.5],["Redmi","13C","Padrão",250],["Samsung","A03","Padrão",187.5],["Apple","iPhone X","Padrão",425],["Apple","iPhone 14 Pro Max","Padrão",1200],["Samsung","A52","Padrão",350],["Samsung","A30","Padrão",275],["Samsung","A50","Padrão",275],["Samsung","A32","Padrão",375],["Redmi","13 Pro","Padrão",425],["Redmi","12 4G","Padrão",300],["Redmi","Note 9","Padrão",175],["Samsung","A80","Padrão",1700],["Xiaomi","Mi Note 10 Pro","Padrão",1375],["Samsung","6S Little","Padrão",675],["Motorola","Moto E13","Padrão",225],["Apple","iPhone 14 Pro","Padrão",1875],["Redmi","Note 12","Padrão",450],["Samsung","S21 FE","Padrão",750],["Redmi","A3","Padrão",237.5],["Samsung","A34","Padrão",475],["Samsung","A13","Padrão",300],["Motorola","Moto G84","Padrão",575],["Redmi","Note 7","Padrão",250],["Redmi","Note 8","Padrão",275],["Samsung","A20S","Padrão",275],["Redmi","Note 9","VEZR sem aro",175],["Redmi","Note 9","VEZR com aro",200],["Poco","C75","VEZR sem aro",175],["Poco","C75","VEZR com aro",195],["Samsung","A03","VEZR sem aro",162.5],["Samsung","A03","VEZR com aro",187.5],["Redmi","A5","VEZR sem aro",175],["Redmi","A5","VEZR com aro",200],["Redmi","A5","OLED sem aro",137.5],["Redmi","Note 12 4G","OLED sem aro",350],["Samsung","A15","OLED",337.5],["Motorola","Moto G05","VEZR sem aro",175],["Motorola","Moto G05","VEZR com aro",187.5],["Motorola","Moto G34","VEZR sem aro",187.5],["Motorola","Moto G34","VEZR com aro",212.5],["Motorola","Moto G6 Play","Tipo não informado",125],["Samsung","A12","VEZR sem aro",162.5],["Samsung","A12","VEZR com aro",187.5],["Samsung","A13","VEZR com aro",187.5],["Samsung","A25 5G","OLED com aro",325],["Samsung","A35","OLED VZO",375],["Samsung","A35","OLED",437.5],["Redmi","A2","VEZR sem aro",175],["Redmi","A2","VEZR com aro",187.5],["Apple","iPhone 8 Plus","VEZR",187.5],["Motorola","Moto G50","VEZR",187.5],["Samsung","A02","China sem aro",112.5],["Samsung","A02","VEZR com aro",187.5],["Apple","iPhone 15","Tipo não informado",400],["Redmi","9T","Tipo não informado",175],["Redmi","12S","OLED sem aro",337.5],["Redmi","12S","OLED com aro",362.5],["Samsung","A06","OLED sem aro",125],["Samsung","A06","OLED com aro",150],["Motorola","Moto G54","OLED sem aro",137.5],["Motorola","Moto G54","OLED com aro",162.5],["Redmi","Note 12S","OLED sem aro",337.5],["Redmi","Note 12S","OLED com aro",362.5],["Poco","X5 Pro 5G","VEZR com aro",475],["Samsung","A53 5G","OLED",362.5],["Samsung","A32","OLED",337.5],["Samsung","A13","OLED sem aro",137.5],["Samsung","A13","OLED com aro",162.5],["Motorola","Moto G22","Tipo não informado",187.5],["Motorola","Moto G22","Com aro; tipo não informado",212.5],["Redmi","X6 Pro","Tipo não informado",425],["Redmi","12","Com aro; tipo não informado",200],["Itel","A70","Tipo não informado",187.5],["Redmi","Note 12","OLED sem aro",400],["Redmi","Note 12","OLED com aro",425],["Samsung","A10","OLED com aro",175],["Motorola","Moto G32","OLED sem aro",187.5],["Samsung","A17","Tipo não informado",500],["Poco","X5 Pro 5G","OLED sem aro",487.5],["Xiaomi","14 Pro 5G","Tipo não informado",525],["Apple","iPhone 14 Pro","JK OLED",737.5],["Redmi","Note 13 4G","CNN SVC com aro",450],["Motorola","Moto E13","Com aro; tipo não informado",187.5],["Apple","iPhone 12","CNN SVC",587.5],["Samsung","A23","OLED sem aro",180],["Samsung","M53 5G","OLED com aro",475],["Samsung","S20 FE","OLED com aro",500],["Apple","iPhone 13 Pro","JK OLED",700],["Redmi","Note 13","OLED com aro",425],["Redmi","Note 13","OLED sem aro",387.5]];
+function seed(set){const sc={},dv={},scr=[],devs=[],pr=[],t=now();for(const[b,m,s,p]of DATA){if(!sc[s]){sc[s]=uid();scr.push({id:sc[s],name:s,on:true})}const k=b+'|'+m;if(!dv[k]){dv[k]=uid();devs.push({id:dv[k],brand:b,model:m,terms:b==='Samsung'?'galaxy':/Redmi|Poco/.test(b)?'xiaomi':'',on:true})}pr.push({id:uid(),dev:dv[k],scr:sc[s],price:p,labor:true,upd:t})}return{demo:false,set:set||{name:'WBA Assistência Técnica',phone:'',addr:'',site:'',validity:'',warranty:'',pin:'1234'},screens:scr,devices:devs,prices:pr,quotes:[],lastExport:null}}
+function seedOld(){const t=now();return{demo:true,set:{name:'WBA Assistência Técnica',phone:'',addr:'',site:'',validity:'',warranty:'',pin:'1234'},
+screens:[{id:'s1',name:'AMOLED',on:true},{id:'s2',name:'OLED',on:true},{id:'s3',name:'Original',on:true}],
+devices:[{id:'d1',brand:'Samsung',model:'Galaxy A54',terms:'a54 sm-a546',on:true},{id:'d2',brand:'Samsung',model:'Galaxy A34',terms:'a34',on:true},{id:'d3',brand:'Motorola',model:'Moto G84',terms:'g84',on:true}],
+prices:[['d1','s1',450],['d1','s2',350],['d1','s3',650],['d2','s1',380],['d2','s3',560],['d3','s2',300]].map(p=>({id:uid(),dev:p[0],scr:p[1],price:p[2],labor:true,upd:t})),quotes:[],lastExport:null}}
+let S=(()=>{let o=null;try{const r=localStorage.getItem(K);if(r)o=JSON.parse(r)}catch(e){}return !o||o.demo?seed(o&&o.set):o})();
+function save(){try{localStorage.setItem(K,JSON.stringify(S))}catch(e){toast('Não foi possível salvar neste aparelho.')}}
+function el(t,a,...c){const e=document.createElement(t);for(const k in a||{}){const v=a[k];if(v===false||v==null)continue;if(k==='class')e.className=v;else if(k.startsWith('on'))e.addEventListener(k.slice(2),v);else if(k==='value')e.value=v;else e.setAttribute(k,v===true?'':v)}e.append(...c.flat().filter(x=>x!=null&&x!==false));return e}
+function toast(m){document.getElementById('toast')?.remove();const t=el('div',{id:'toast',role:'status'},m);document.body.append(t);setTimeout(()=>t.remove(),3200)}
+function modal(...c){const o=el('div',{class:'ov',role:'dialog','aria-modal':'true'},el('div',{},c));o.close=()=>o.remove();o.addEventListener('click',e=>{if(e.target===o)o.remove()});document.body.append(o);return o}
+function ask(msg,ok,label){const o=modal(el('p',{},msg),el('div',{class:'row'},el('button',{class:'b g',onclick:()=>o.close()},'Cancelar'),el('button',{class:'b',onclick:()=>{o.close();ok()}},label||'Confirmar')))}
+let tab='home',step='search',q='',dev=null,cur=null,hq=null,hf='',adm=false,at='dev',ed=null,pd=null;
+const app=document.getElementById('app');
+function render(){app.replaceChildren(el('header',{},el('span',{class:'logo'},'WBA'),el('span',{class:'sub'},'Orçamentos'),el('span',{class:'st'},'Dados salvos neste aparelho')),el('main',{},tab==='home'?vHome():tab==='hist'?vHist():vAdmin()),
+el('nav',{},[['home','Orçamento'],['hist','Histórico'],['admin','Administração']].map(([k,l])=>el('button',{class:tab===k?'on':'','aria-current':tab===k?'page':false,onclick:()=>{tab=k;render()}},l))))}
+const dname=d=>d.brand+' '+d.model;
+const demoNote=()=>S.demo?el('p',{class:'note'},'Dados de exemplo. Os preços são fictícios; cadastre os reais em Administração.'):null;
+function vHome(){
+ if(step==='quote')return el('div',{},el('button',{class:'b g',onclick:()=>{step='screens';render()}},'Voltar'),el('p'),card(cur,true));
+ if(step==='screens'){const d=S.devices.find(x=>x.id===dev),opts=S.prices.filter(p=>p.dev===dev&&p.on!==false).map(p=>({p,s:S.screens.find(s=>s.id===p.scr)})).filter(o=>o.s&&o.s.on);
+  return el('div',{},el('button',{class:'b g',onclick:()=>{step='search';render()}},'Voltar'),el('h2',{},dname(d)),el('span',{class:'mut'},'Escolha o tipo de tela'),el('p'),
+  opts.length?opts.map(({p,s})=>el('button',{class:'item',onclick:()=>{cur={brand:d.brand,model:d.model,screen:s.name,price:p.price,labor:p.labor,ts:now()};step='quote';render()}},el('div',{},s.name,el('small',{},p.labor?'Mão de obra inclusa':'Mão de obra não inclusa')),el('span',{class:'p'},NF.format(p.price)))):el('p',{class:'note'},'Nenhum preço cadastrado para este aparelho. Cadastre em Administração.'))}
+ const res=el('div'),inp=el('input',{class:'big',type:'search',placeholder:'Digite a marca ou modelo do aparelho',value:q,autocomplete:'off','aria-label':'Pesquisar aparelho',oninput:e=>{q=e.target.value;list()}});
+ function list(){const n=norm(q);res.replaceChildren(...(!n?[el('p',{class:'mut'},'Digite parte do nome para ver os modelos cadastrados.')]:(m=>m.length?m:[el('p',{class:'note'},'Nenhum modelo encontrado. Confira a escrita ou cadastre o aparelho em Administração.')])(S.devices.filter(d=>d.on&&norm(d.brand+d.model+(d.terms||'')).includes(n)).slice(0,30).map(d=>el('button',{class:'item',onclick:()=>{dev=d.id;step='screens';render()}},el('div',{},d.model,el('small',{},d.brand)))))))}
+ list();return el('div',{},demoNote(),el('h2',{},'Novo orçamento'),inp,res)}
+function card(o,isNew){return el('div',{class:'card'},el('span',{class:'mut'},o.brand),el('h2',{style:'margin:2px 0'},o.model),el('span',{class:'pill'},'Tela '+o.screen),el('div',{class:'price'},NF.format(o.price)),el('div',{class:'mut'},o.labor?'Mão de obra inclusa':'Mão de obra não inclusa'),el('div',{class:'mut'},fdate(o.ts)),el('p'),
+ el('div',{class:'row'},el('button',{class:'b',onclick:()=>exp(o,'pdf')},'Gerar PDF'),el('button',{class:'b',onclick:()=>exp(o,'png')},'Gerar imagem')),el('p'),
+ isNew?el('div',{class:'row'},el('button',{class:'b g',disabled:o.saved,onclick:()=>{S.quotes.unshift({id:uid(),brand:o.brand,model:o.model,screen:o.screen,price:o.price,labor:o.labor,ts:o.ts});o.saved=true;save();toast('Salvo no histórico.');render()}},o.saved?'Salvo no histórico':'Salvar no histórico'),el('button',{class:'b g',onclick:()=>{step='search';q='';cur=null;render()}},'Novo orçamento')):null)}
+function vHist(){if(hq)return el('div',{},el('button',{class:'b g',onclick:()=>{hq=null;render()}},'Voltar'),el('p'),card(hq,false),el('p',{class:'mut'},'O preço acima é o valor da data da emissão e não muda com a tabela atual.'),adm?el('button',{class:'b r',onclick:()=>ask('Excluir este orçamento do histórico?',()=>{S.quotes=S.quotes.filter(x=>x.id!==hq.id);save();hq=null;render()},'Excluir')},'Excluir registro'):null);
+ const l=el('div'),f=el('input',{type:'search',placeholder:'Pesquisar por modelo',value:hf,oninput:e=>{hf=e.target.value;fill()}});
+ function fill(){const n=norm(hf),r=S.quotes.filter(x=>norm(x.brand+x.model).includes(n));l.replaceChildren(...(r.length?r.map(x=>el('button',{class:'item',onclick:()=>{hq=x;render()}},el('div',{},x.brand+' '+x.model,el('small',{},x.screen+' · '+fdate(x.ts))),el('span',{class:'p'},NF.format(x.price)))):[el('p',{class:'mut'},'Nenhum orçamento salvo ainda.')]))}
+ fill();return el('div',{},el('h2',{},'Histórico'),f,l)}
+function vAdmin(){
+ if(!adm){const p=el('input',{class:'big',type:'password',inputmode:'numeric',placeholder:'PIN de administrador','aria-label':'PIN'});const go=()=>{if(p.value===S.set.pin){adm=true;render()}else toast('PIN incorreto.')};p.addEventListener('keydown',e=>e.key==='Enter'&&go());
+  return el('div',{},el('h2',{},'Administração'),p,el('button',{class:'b',onclick:go},'Entrar'),el('p',{class:'note'},'PIN inicial: 1234. Troque em Dados. Esta proteção vale só neste aparelho; a segurança real depende do login com Firebase.'))}
+ const T=[['dev','Aparelhos'],['scr','Telas'],['pri','Preços'],['cfg','Dados']];
+ return el('div',{},demoNote(),el('div',{class:'tabs'},T.map(([k,l])=>el('button',{class:'b'+(at===k?'':' g'),onclick:()=>{at=k;render()}},l)),el('button',{class:'b g',onclick:()=>{adm=false;render()}},'Sair')),at==='dev'?aDev():at==='scr'?aScr():at==='pri'?aPri():aCfg())}
+function aDev(){const b=el('input',{placeholder:'Marca',value:ed?.brand||''}),m=el('input',{placeholder:'Modelo',value:ed?.model||''}),t=el('input',{placeholder:'Termos de busca (opcional)',value:ed?.terms||''});
+ return el('div',{},el('h3',{},ed?'Editar aparelho':'Novo aparelho'),b,m,t,el('div',{class:'row'},el('button',{class:'b',onclick:()=>{const br=b.value.trim(),mo=m.value.trim();if(!br||!mo)return toast('Informe marca e modelo.');if(S.devices.some(d=>d.id!==ed?.id&&norm(d.brand+d.model)===norm(br+mo)))return toast('Este aparelho já está cadastrado.');
+  if(ed){Object.assign(S.devices.find(d=>d.id===ed.id),{brand:br,model:mo,terms:t.value.trim()})}else S.devices.push({id:uid(),brand:br,model:mo,terms:t.value.trim(),on:true});ed=null;save();toast('Aparelho salvo.');render()}},'Salvar aparelho'),ed?el('button',{class:'b g',onclick:()=>{ed=null;render()}},'Cancelar edição'):null),
+ el('h3',{},'Aparelhos cadastrados ('+S.devices.length+')'),[...S.devices].sort((a,c)=>dname(a).localeCompare(dname(c))).map(d=>el('div',{class:'item'+(d.on?'':' off')},el('div',{},d.model,el('small',{},d.brand+(d.on?'':' · inativo'))),el('span',{class:'p'},el('button',{class:'b g',onclick:()=>{ed=d;render()}},'Editar'),' ',el('button',{class:'b g',onclick:()=>{d.on=!d.on;save();render()}},d.on?'Desativar':'Ativar')))))}
+function aScr(){const n=el('input',{placeholder:'Nome do tipo de tela (ex.: AMOLED)'});
+ return el('div',{},el('h3',{},'Novo tipo de tela'),n,el('button',{class:'b',onclick:()=>{const v=n.value.trim();if(!v)return toast('Informe o nome.');if(S.screens.some(s=>norm(s.name)===norm(v)))return toast('Esse tipo já existe.');S.screens.push({id:uid(),name:v,on:true});save();render()}},'Adicionar'),el('h3',{},'Tipos cadastrados'),
+ S.screens.map(s=>el('div',{class:'item'+(s.on?'':' off')},el('div',{},s.name,el('small',{},s.on?'Ativo':'Inativo')),el('span',{class:'p'},el('button',{class:'b g',onclick:()=>{s.on=!s.on;save();render()}},s.on?'Desativar':'Ativar')))))}
+function aPri(){const sel=el('select',{'aria-label':'Aparelho',onchange:e=>{pd=e.target.value;render()}},el('option',{value:''},'Escolha o aparelho'),[...S.devices].sort((a,c)=>dname(a).localeCompare(dname(c))).map(d=>el('option',{value:d.id,selected:d.id===pd},dname(d))));
+ const out=el('div',{},sel);if(!pd)return out;const rows=S.screens.filter(s=>s.on).map(s=>{const p=S.prices.find(x=>x.dev===pd&&x.scr===s.id),i=el('input',{inputmode:'decimal',placeholder:'Sem preço',value:p?String(p.price).replace('.',','):'','aria-label':'Preço '+s.name}),c=el('input',{type:'checkbox',checked:p?p.labor:true,'aria-label':'Mão de obra inclusa'});return{s,p,i,c}});
+ out.append(el('h3',{},'Preço final por tipo de tela'),rows.map(r=>el('div',{},el('span',{class:'lbl'},r.s.name+(r.p?' · alterado em '+fdate(r.p.upd):'')),r.i,el('label',{class:'mut',style:'display:flex;gap:8px;align-items:center;margin:-2px 0 12px'},r.c,'Mão de obra inclusa'))),
+ el('button',{class:'b',onclick:()=>{const ch=[];for(const r of rows){const v=r.i.value.trim().replace(',','.');if(v===''){if(r.p)ch.push({r,v:null});continue}const n=Number(v);if(!isFinite(n)||n<=0)return toast('Preço inválido em '+r.s.name+'.');if(!r.p||r.p.price!==n||r.p.labor!==r.c.checked)ch.push({r,v:n})}
+  if(!ch.length)return toast('Nada foi alterado.');ask('Confirmar alterações?\n'+ch.map(x=>x.r.s.name+': '+(x.v==null?'remover':NF.format(x.v))).join(' | '),()=>{for(const x of ch){if(x.v==null)S.prices=S.prices.filter(p=>p!==x.r.p);else if(x.r.p)Object.assign(x.r.p,{price:x.v,labor:x.r.c.checked,upd:now()});else S.prices.push({id:uid(),dev:pd,scr:x.r.s.id,price:x.v,labor:x.r.c.checked,upd:now()})}save();toast('Preços salvos.');render()})}},'Salvar preços'));return out}
+function aCfg(){const s=S.set,f={};const fld=(k,l,ph)=>[el('span',{class:'lbl'},l),f[k]=el('input',{value:s[k]||'',placeholder:ph||''})];
+ return el('div',{},el('h3',{},'Dados que aparecem no orçamento'),fld('name','Nome da empresa'),fld('phone','Telefone'),fld('addr','Endereço'),fld('site','Site'),fld('validity','Validade (deixe vazio para não exibir)','Ex.: válido por 7 dias'),fld('warranty','Garantia (deixe vazio para não exibir)'),fld('pin','PIN de administrador'),
+ el('button',{class:'b',onclick:()=>{if(!/^\d{4,8}$/.test(f.pin.value.trim()))return toast('O PIN deve ter de 4 a 8 números.');for(const k in f)s[k]=f[k].value.trim();save();toast('Dados salvos.')}},'Salvar dados'),
+ el('h3',{},'Exportar e backup'),el('p',{class:'mut'},S.lastExport?'Última exportação: '+fdate(S.lastExport):'Nenhuma exportação feita.'),
+ el('div',{class:'row'},el('button',{class:'b g',onclick:expCsv},'Exportar tabela (CSV)'),el('button',{class:'b g',onclick:()=>{S.lastExport=now();save();saveFile('wba-backup.json',new Blob([JSON.stringify(S)],{type:'application/json'}))}},'Backup completo (JSON)')),
+ el('p',{class:'mut'},'Guarde os arquivos no Google Drive. Para levar os dados ao segundo celular, importe o backup JSON:'),
+ el('input',{type:'file',accept:'.json',onchange:e=>{const fl=e.target.files[0];if(!fl)return;fl.text().then(t=>{const d=JSON.parse(t);if(!d.devices||!d.screens||!d.prices)throw 0;ask('Substituir todos os dados deste aparelho pelo backup?',()=>{S=d;save();toast('Backup importado.');render()},'Substituir')}).catch(()=>toast('Arquivo de backup inválido.'))}}),
+ S.demo?el('button',{class:'b r',onclick:()=>ask('Apagar aparelhos e preços de exemplo para começar com a tabela real?',()=>{S.devices=[];S.prices=[];S.quotes=[];S.demo=false;save();render()},'Apagar exemplos')},'Apagar dados de exemplo'):null)}
+async function saveFile(name,blob){if(window.AndroidBridge){try{const u=new Uint8Array(await blob.arrayBuffer());let s='';for(let i=0;i<u.length;i+=8192)s+=String.fromCharCode.apply(null,u.subarray(i,i+8192));AndroidBridge.save(name,blob.type||'application/octet-stream',btoa(s),/\.(png|pdf)$/.test(name))}catch(e){toast('Não foi possível salvar o arquivo.')}return}let dl=null;try{dl=window.claude&&await window.claude.use('downloads')}catch(e){}
+ if(dl){try{await dl.save({filename:name,data:blob});toast('Arquivo pronto.');return}catch(e){if(e&&e.code==='declined')return}}
+ try{const f=new File([blob],name,{type:blob.type});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f]});return}}catch(e){if(e&&e.name==='AbortError')return}
+ if(blob.type.startsWith('image/')){const o=modal(el('p',{},'Segure a imagem para salvar ou compartilhar.'),el('img',{src:URL.createObjectURL(blob),alt:'Orçamento'}),el('p'),el('button',{class:'b',onclick:()=>o.close()},'Fechar'))}else toast('Salvar arquivos não está disponível aqui.')}
+function expCsv(){const r=[['Marca','Modelo','Tela','Preço final','Mão de obra inclusa','Atualizado em']];for(const p of S.prices){const d=S.devices.find(x=>x.id===p.dev),s=S.screens.find(x=>x.id===p.scr);if(d&&s)r.push([d.brand,d.model,s.name,String(p.price).replace('.',','),p.labor?'Sim':'Não',fdate(p.upd)])}
+ S.lastExport=now();save();saveFile('wba-tabela-precos.csv',new Blob(['\ufeff'+r.map(l=>l.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(';')).join('\r\n')],{type:'text/csv'}))}
+function draw(o){const c=document.createElement('canvas');c.width=1080;c.height=1350;const x=c.getContext('2d'),W=1080,st=S.set;
+ const fit=(t,mx,sz,w)=>{do{x.font=w+' '+sz+'px '+F;sz-=2}while(x.measureText(t).width>mx&&sz>26);return t};
+ x.fillStyle='#F3F6FB';x.fillRect(0,0,W,1350);x.fillStyle='#0A2A66';x.fillRect(0,0,W,300);x.fillStyle='#1D6FF2';x.fillRect(0,300,W,14);
+ x.fillStyle='#fff';x.font='800 130px '+F;x.fillText('WBA',70,185);x.font='500 36px '+F;x.fillText(fit(st.name||'',940,36,500),70,245);x.textAlign='right';x.font='600 38px '+F;x.fillText('Orçamento',1010,150);x.textAlign='left';
+ x.fillStyle='#5B6575';x.font='500 36px '+F;x.fillText('Aparelho',70,410);x.fillStyle='#15181E';x.fillText(fit(o.brand,940,44,600),70,470);x.fillText(fit(o.model,940,76,800),70,560);
+ x.fillStyle='#5B6575';x.font='500 36px '+F;x.fillText('Tipo de tela',70,660);x.fillStyle='#15181E';x.fillText(fit(o.screen,940,52,700),70,725);
+ x.fillStyle='#0A2A66';x.fillRect(70,790,940,300);x.fillStyle='#fff';x.fillText(fit(NF.format(o.price),860,150,800),110,960);x.font='600 38px '+F;x.fillText(o.labor?'Mão de obra inclusa':'Mão de obra não inclusa',110,1045);
+ x.fillStyle='#5B6575';x.font='500 30px '+F;const L=['Emitido em '+fdate(o.ts),st.validity,st.warranty&&'Garantia: '+st.warranty,[st.phone,st.site].filter(Boolean).join('  |  '),st.addr].filter(Boolean);let y=1150;for(const l of L){x.fillText(fit(l,940,30,500),70,y);y+=44}
+ return c}
+async function exp(o,kind){const c=draw(o),nm='orcamento-wba-'+o.model.replace(/\W+/g,'-').toLowerCase();
+ if(kind==='png')return c.toBlob(b=>saveFile(nm+'.png',b),'image/png');
+ saveFile(nm+'.pdf',await mkPdf(c))}
+async function mkPdf(c){const jb=new Uint8Array(await(await new Promise(r=>c.toBlob(r,'image/jpeg',.92))).arrayBuffer()),parts=[],off=[];let len=0;const add=p=>{const u=typeof p==='string'?new TextEncoder().encode(p):p;parts.push(u);len+=u.length},o=(n,b)=>{off[n]=len;add(n+' 0 obj\n'+b+'\nendobj\n')};
+ add('%PDF-1.4\n');o(1,'<</Type/Catalog/Pages 2 0 R>>');o(2,'<</Type/Pages/Kids[3 0 R]/Count 1>>');o(3,'<</Type/Page/Parent 2 0 R/MediaBox[0 0 340 425]/Resources<</XObject<</I 4 0 R>>>>/Contents 5 0 R>>');
+ off[4]=len;add('4 0 obj\n<</Type/XObject/Subtype/Image/Width 1080/Height 1350/ColorSpace/DeviceRGB/BitsPerComponent 8/Filter/DCTDecode/Length '+jb.length+'>>\nstream\n');add(jb);add('\nendstream\nendobj\n');
+ const cs='q 340 0 0 425 0 0 cm /I Do Q';o(5,'<</Length '+cs.length+'>>\nstream\n'+cs+'\nendstream');const x=len;
+ add('xref\n0 6\n0000000000 65535 f \n'+[1,2,3,4,5].map(n=>String(off[n]).padStart(10,'0')+' 00000 n \n').join('')+'trailer\n<</Size 6/Root 1 0 R>>\nstartxref\n'+x+'\n%%EOF');return new Blob(parts,{type:'application/pdf'})}
+save();render();
+</script>
+</body>
+</html>
